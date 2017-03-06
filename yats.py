@@ -28,11 +28,11 @@
 
 
 __author__ = "Brett Haydon (bbhaydon@bigpond.com)"
-__version__ = "$Revision: 0.1 $"[11:-2]
+__version__ = "3.0"
 
 PRINTECHO = 1
 MissingTag="Missing Matching End Tag"
-import string, re, os, types
+import re, os, types
 
 class StringTemplate:
     """Generate documents based on a template and a substitution mapping.
@@ -77,7 +77,7 @@ class StringTemplate:
         if len(self.delimiters) != 2:
             raise ValueError("delimiter argument must be a pair of strings")
         self.delimiter_width = len(self.delimiters[0])
-        delimiters = map(re.escape, self.delimiters)
+        delimiters = list(map(re.escape, self.delimiters))
         self.subpatstr = delimiters[0] + "[\w_]+" + delimiters[1]
         self.subpat = re.compile(self.subpatstr)
         self.substitutions = substitutions or {}
@@ -87,13 +87,22 @@ class StringTemplate:
         self.source = template
     
     def keys(self):
-        return self.substitutions.keys()
+        return list(self.substitutions.keys())
 
     def __setitem__(self, name, value):
         self.substitutions[name] = value
         
     def __getitem__(self, name):
         return self.substitutions[name]
+
+    def fields(self):
+        xkeys = self.subpat.findall(self.source)
+        xList = []
+        for x in xkeys:
+            xkey = x.strip('{}')
+            if xkey not in xList:
+                xList.append(xkey)
+        return xList
       
     def __str__(self):
         return self._sub(self.source)
@@ -115,7 +124,7 @@ class StringTemplate:
             token = source[i+a+dw:i+b-dw]
             substitute = substitutions.get(token, '')
             subtype = type(substitute)
-            if subtype in [types.TupleType, types.InstanceType, types.DictType]:
+            if subtype in [list, tuple, dict]:
                 newsearch = '<!--{%s}-->'% token
                 groupsubpat = re.compile(newsearch)
                 groupmatch = groupsubpat.search(source[i+b+3:])
@@ -126,13 +135,13 @@ class StringTemplate:
                     groups[token] = StringTemplate(source[i+b:i+b+startendtoken])
                     source = source[:i+a-4] + source[i+b+endendtoken:]
                     newsubs = substitutions.copy()
-                    if subtype == types.TupleType:
+                    if subtype in (list, tuple):
                          for row in substitute:
                             newsubs = substitutions.copy()
                             newsubs.update(row)
                             groups[token].substitutions = newsubs
                             output.append(str(groups[token]))
-                    elif subtype == types.DictType:
+                    elif subtype == dict:
                         newsubs = substitutions.copy()
                         newsubs.update(substitute)
                         groups[token].substitutions = newsubs
@@ -150,7 +159,7 @@ class StringTemplate:
             matched = self.subpat.search(source[i:])
         else:
             output.append(source[i:])
-        return string.join(output, '')
+        return ''.join(output)
     def extract(self, token):
         """Extract section marked with beginning and end <!--{token}-->.
         
@@ -171,7 +180,7 @@ class StringTemplate:
             else:
                 newtemplate.append(source[a:])
                 break
-        self.source = string.join(newtemplate, '')
+        self.source = ''.join(newtemplate)
 
     def write(self, filename=None):
         """Emit the Document HTML to a file or standard output.
@@ -188,14 +197,14 @@ class StringTemplate:
                     f = open(filename, 'w')
                     f.write(str(self))
                     f.close()
-                    if PRINTECHO: print 'wrote: "'+filename+'"'
+                    if PRINTECHO: print('wrote: "'+filename+'"')
                 else:
-                    if PRINTECHO: print 'file unchanged: "'+filename+'"'
+                    if PRINTECHO: print('file unchanged: "'+filename+'"')
             else:
                 f = open(filename, 'w')
                 f.write(str(self))
                 f.close()
-                if PRINTECHO: print 'wrote: "'+filename+'"'
+                if PRINTECHO: print('wrote: "'+filename+'"')
         else:
             import sys
             sys.stdout.write(str(self))
@@ -229,8 +238,8 @@ def mpath(path):
             path = path[1:]
         else: # bare relative
             mp = ''
-        pl = string.split(path, '/')
-        mp = mp + string.join(pl, ':')
+        pl = path.split('/')
+        mp = mp + ':'.join(pl)
         return mp
     elif os.name == 'posix': # Expand Unix variables
         if path[0] == '~' :
