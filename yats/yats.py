@@ -27,9 +27,6 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-__author__ = "Brett Haydon (bbhaydon@bigpond.com)"
-__version__ = "3.0"
-
 PRINTECHO = 1
 MissingTag="Missing Matching End Tag"
 import re, os, types
