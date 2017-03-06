@@ -17,7 +17,7 @@ There are a number of template tools in use. For perl users there is HTML::TEMPL
 
 ### install
 ```
-pip install git+https://github.com/otsutomesan/yats.git
+pip install -e git+https://github.com/otsutomesan/yats.git#egg=yats
 ```
 
 ### Simple Usage
