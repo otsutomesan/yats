@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>Yats - HTML Templating for Python</title>
+  </head>
+
+  <body bgcolor="#FFFFFF">
+    
+<h1 align="center">Yats - {HTML} Templates for Python</h1>
+    
+<div align="center"> 
+  <p><small> Author: Brett Haydon, bbhaydon@bigpond.com<br>
+    Derived from Robin Friedrichs HTMLgen</small><small><br>
+    Version: 0.1<br>
+    </small></p>
+  </div>
+
+    <h2>Contents</h2>
+
+    
+<ul>
+  <li><a href="#INTRODUCTION">Introduction</a>
+  <li><a href="#DOWN">Downloading</a> 
+  <li><a href="#INSTALL">Installation</a> 
+  <li><a href="#GETTINGSTARTED">Getting Started</a> 
+    <ul>
+      <li><a href="#SIMPLE">Simple Usage</a> 
+      <li><a href="#COND">Conditional Insertions</a> 
+      <li><a href="#LOOP">Inserting a Row or Rows of Data</a> 
+    </ul>
+  <li><a href="#LIC">Licence</a> 
+</ul>
+
+    
+<h2><a name="INTRODUCTION">Introduction</a></h2>
+<p>Yats is a simple python tool that is designed to split presentation from logic 
+  in dynamic web pages. It was primarily written to be used in conjunction with 
+  the <a href="http://www.modpython.org">modpython</a> modpublisher module, but 
+  can equally be used in cgi scripts. It can also conceivably be applied to text 
+  and other markup languages other than HTML. It is based on <a href="http://starship.python.net/crew/friedrich/HTMLgen/html/main.html">HTMLgen's 
+  Template documents</a> so usage is similar for users already familiar with that 
+  tool.</p>
+<p>The reasoning behind any HTML template tool is that it allows designers to 
+  focus on the presentation of the page, and programmers on the logic behind any 
+  dynamic data that is to be presented to the user. Advantages are readability 
+  and ease of testing, as code can be tested outside of the web page using tools 
+  such as pyunit.</p>
+<p>There are a number of template tools in use. For perl users there is HTML::TEMPLATE, 
+  and of course for Python there is the mother of all template systems, <a href="http://www.zope.org">Zope</a>. 
+  Yats takes a very simple approach in that it uses HTML comment tags for blocks 
+  of data, and braces { } for actual data symbols. All logic is applied in the 
+  python code. </p>
+<p>Yats currently supports:<br>
+</p>
+<ul>
+  <li>conditional insertions</li>
+  <li>loops</li>
+  <li>your regular boring simple substitutions</li>
+</ul>
+<h2><a name="DOWN">Downloading</a></h2>
+<p>Yats can be downloaded from <a href="yats.zip">here</a></p>
+<h2><a name="INSTALL">Installation</a></h2>
+<p>Install the module somewhere on the PYTHONPATH.</p>
+<h2><a name="GETTINGSTARTED">Getting Started</a></h2>
+<h3><a name="SIMPLE">Simple Usage</a></h3>
+<p>This example opens this document and replaces tokens with data or removes them 
+  completely. Potential data is represented on the page by braces { } surrounding 
+  a symbol which may or may not have a corresponding key, value pair in the substitution 
+  dictionary. The substitution dictionary does not need a corresponding tag on 
+  the target page, and vice versa.</p>
+<p>Text replaces {idle}, and removes {this}redundant tag. It also replaces {idle} 
+  again here and {eric}.</p>
+<pre>from yats import *
+
+page=TemplateDocument('yats.html')<br>page.substitutions={'idle':'idle with eric'} 
+page['eric']= 'spam and eggs'<br>page.write('yatsexample1.html')
+#or to stdout<br>str(page)<br></pre>
+<p> Note: Braces can be represented by their numeric entities &amp;#123; for '&#123;' 
+  and &amp;#125; for '&#125;' in the HTML source to avoid being substituted. Substitutions 
+  are done according to \w flag in the re module. Alphanumeric characters and 
+  _ are valid symbols, but tags with { blank space(s) } would not be substituted.</p>
+<p>To use a String instead of a file, use a StringTemplate object instead of TemplateDocument.</p>
+<h3><a name="COND">Conditional Insertions</a></h3>
+<!--{sometag}-->
+&lt;!--&#123;sometag&#125;--&gt; 
+<p>This example extracts the section within &quot;sometag&quot; . Unlike regular 
+  tags, a section will always remain in place unless you extract it. The tags 
+  are embedded in the HTML source as comments &lt;!--&#123;sometag&#125;--&gt; 
+  at the beginning and end of the section. <br>
+</p>
+<p>{eric} </p>
+<pre>from yats import *<br>page=TemplateDocument('yats.html')<br>page.extract('sometag')<br>page['sometag']='Block replaced'<br>page['eric']= 'spam and eggs'<br>page.write('yatsexample2.html')</pre>
+<p>&lt;!--&#123;sometag&#125;--&gt; 
+  <!--{sometag}-->
+</p>
+<h3><a name="LOOP">Inserting a row or rows of data (looping over data)</a></h3>
+<p>A single row of data is a dictionary object, and multiple rows are a held in 
+  a tuple of dictionaries. A looping insertion extracts the section when is finds 
+  a dictionary or tuple object in the substitutions dictionary, and iteratively 
+  appends the section to the output for each row of data. An error will be raised 
+  if there is no end tag for a section.</p>
+<pre>from yats import *<br>page=TemplateDocument('yats.html')<br>page['row'] = {'cheese':'cheddar','instock':'no','comment':'This is a cheese shop!'}<br>rows = ({'cheese':'blue vein','instock':'no','comment':'Over ripe'},{'cheese':'stilton','instock':'no'})<br>for rownum in range(0,len(rows),2): rows[rownum]['bgcolor']= 'bgcolor=&quot;#CCCCCC&quot;'<br>page['rows'] = rows<br>page.write('yatsexample3.html')<br>
+</pre>
+<table width="75%" border="1">
+  <tr>
+    <td width="24%">Cheese Variety</td>
+    <td width="12%">Instock?</td>
+    <td width="64%">Comment</td>
+  </tr>
+  <!--{row}-->
+  <tr>
+    <td width="24%">{cheese}&nbsp;</td>
+    <td width="12%">{instock}&nbsp;</td>
+    <td width="64%">{comment}&nbsp;</td>
+  </tr>
+  <!--{row}-->
+</table>
+<p>&nbsp;</p>
+<table width="75%" border="1">
+  <tr> 
+    <td width="24%">Cheese Variety</td>
+    <td width="12%">Instock?</td>
+    <td width="64%">Comment</td>
+  </tr>
+  <!--{rows}-->
+  <tr> 
+    <td width="24%" {bgcolor}>{cheese}&nbsp;</td>
+    <td width="12%" {bgcolor}>{instock}&nbsp;</td>
+    <td width="64%" {bgcolor}>{comment}&nbsp;</td>
+  </tr>
+  <!--{rows}-->
+</table>
+<h2><a name="LIC">Licence</a></h2>
+<p> #Copyright (c) 2001 Brett Haydon email:bbhaydon@bigpond.com<br>
+  # Permission to use, copy, modify, and distribute this software and<br>
+  # its documentation for any purpose and without fee is hereby granted,<br>
+  # provided that the above copyright notice appear in all copies and<br>
+  # that both that copyright notice and this permission notice appear in<br>
+  # supporting documentation.<br>
+  # THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS<br>
+  # SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND<br>
+  # FITNESS, IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY<br>
+  # SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER<br>
+  # RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF<br>
+  # CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN<br>
+  # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. </p>
+<p> # COPYRIGHT (C) 1996-9 ROBIN FRIEDRICH email:Robin.Friedrich@pdq.net<br>
+  # Permission to use, copy, modify, and distribute this software and<br>
+  # its documentation for any purpose and without fee is hereby granted,<br>
+  # provided that the above copyright notice appear in all copies and<br>
+  # that both that copyright notice and this permission notice appear in<br>
+  # supporting documentation.<br>
+  # THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS<br>
+  # SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND<br>
+  # FITNESS, IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY<br>
+  # SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER<br>
+  # RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF<br>
+  # CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN<br>
+  # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</p>
+</body>
+</html>
