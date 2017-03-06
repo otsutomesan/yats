@@ -5,7 +5,6 @@ Yats - {HTML} Templates for Python
 - Getting Started
 - Licence
 
----
 ## Introduction
 Yats is a simple python tool that is designed to split presentation from logic in dynamic web pages. It was primarily written to be used in conjunction with the modpython modpublisher module, but can equally be used in cgi scripts. It can also conceivably be applied to text and other markup languages other than HTML. It is based on HTMLgen's Template documents so usage is similar for users already familiar with that tool.  
 
@@ -15,6 +14,11 @@ There are a number of template tools in use. For perl users there is HTML::TEMPL
 
 ---
 ## Getting Started
+
+### install
+```
+pip install git+https://github.com/otsutomesan/yats.git
+```
 
 ### Simple Usage
 ```

@@ -9,5 +9,6 @@ setup(
   version=__version__,
   description='{HTML} Templates for Python',
   author=__author__,
+  packages=['yats'],
 )
 
