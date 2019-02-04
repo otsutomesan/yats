@@ -262,7 +262,7 @@ def compare_s2f(s, f2):
                 b1 = ''
             b2 = fp2.read(BUFSIZE)
             if not b1 and not b2: return 0
-            c = cmp(b1, b2)
+            c = (b1 > b2) - (b1 < b2)
             if c: return c
     finally:
         fp2.close()
